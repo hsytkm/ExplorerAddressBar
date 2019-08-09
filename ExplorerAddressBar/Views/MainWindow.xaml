@@ -20,7 +20,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TextBox Text="{Binding BasePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <v:AddressBar Height="20"
+                      DirectoryNodeChain="{Binding DirectoryNodeChain, Mode=OneWay}" />
 
         <TextBox Grid.Row="1"
                  Margin="0,5"

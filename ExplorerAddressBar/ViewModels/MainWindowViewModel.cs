@@ -14,20 +14,36 @@ namespace ExplorerAddressBar.ViewModels
     {
         private const string InitialPath = @"C:\data\";
 
+        #region 選択中ディレクトリ
+
         // 選択中ディレクトリPATH
         public ReactiveProperty<string> BasePath { get; } = new ReactiveProperty<string>(initialValue: InitialPath);
 
         // 選択中ディレクトリが子ディレクトリ持つかフラグ
         public ReactiveProperty<bool> HasChildDirectory { get; } = new ReactiveProperty<bool>();
 
-        // 選択中ディレクトリが子ファイル
+        // 選択中ディレクトリの子ファイル
         public ReadOnlyReactiveProperty<string> ChildFiles { get; }
+
+        #endregion
+
+        #region 子ディレクトリの選択
 
         // 選択候補のディレクトリ達
         public ObservableCollection<DirectoryItem> ChildDirectories { get; } = new ObservableCollection<DirectoryItem>();
 
-        // 選択中のディレクトリ
+        // Viewで選択されたディレクトリ
         public ReactiveProperty<DirectoryItem> SelectedDirectory { get; } = new ReactiveProperty<DirectoryItem>();
+
+        #endregion
+
+        // 選択ディレクトリのノードチェーン
+        public IList<DirectoryNode> DirectoryNodeChain
+        {
+            get => _DirectoryNodeChain;
+            private set => SetProperty(ref _DirectoryNodeChain, value);
+        }
+        private IList<DirectoryNode> _DirectoryNodeChain;
 
         public MainWindowViewModel()
         {
@@ -53,7 +69,7 @@ namespace ExplorerAddressBar.ViewModels
                     foreach(var path in paths) ChildDirectories.Add(path);
                 });
 
-            // ディレクトリ選択
+            // Viewで選択されたディレクトリ
             SelectedDirectory.Where(x => x != null)
                 .Subscribe(x => BasePath.Value = x.FullPath);
 
@@ -63,6 +79,11 @@ namespace ExplorerAddressBar.ViewModels
                 .Where(x => x != null)
                 .Select(x => string.Join(Environment.NewLine, x))
                 .ToReadOnlyReactiveProperty();
+
+            // 選択ディレクトリのノードチェーン
+            directoryTree.Select(x => x.Nodes)
+                .Where(x => x != null)
+                .Subscribe(nodes => DirectoryNodeChain = nodes);
 
         }
 

@@ -20,23 +20,23 @@ namespace ExplorerAddressBar.ViewModels
 
     class DirectoryNode
     {
-        public string FullPath { get; }
+        public string BasePath { get; }
 
-        public ObservableCollection<DirectoryItem> ChildDirectoryNames { get; private set; }
+        public IList<DirectoryItem> ChildDirectoryNames { get; private set; }
 
         public IList<string> ChildFileNames { get; private set; }
 
         public DirectoryNode(string path)
         {
-            FullPath = path;
+            BasePath = path;
             Update();
         }
 
         // ディレクトリを更新
         public void Update()
         {
-            var path = FullPath;
-            ChildDirectoryNames = new ObservableCollection<DirectoryItem>(GetChildDirectories(path));
+            var path = BasePath;
+            ChildDirectoryNames = GetChildDirectories(path).ToList();
             ChildFileNames = GetChildFiles(path).ToList();
         }
 
@@ -47,19 +47,16 @@ namespace ExplorerAddressBar.ViewModels
             if (!Directory.Exists(basePath)) return Enumerable.Empty<DirectoryItem>();
 
             return Directory.GetDirectories(basePath, "*", SearchOption.TopDirectoryOnly)
-                .Select(p => p.Replace(basePath, ""))
-                //.Select(p => p.TrimStart(Path.DirectorySeparatorChar))  // ディレクトリ先頭の\を削除
-                .Select(p => Path.Combine(basePath, p))
                 .Select(p => new DirectoryItem(p));
         }
 
         // 引数pathディレクトリ内の子ファイルを返す
-        private static IEnumerable<string> GetChildFiles(string path)
+        private static IEnumerable<string> GetChildFiles(string basePath)
         {
             // Exists()の中で、null/存在しないPATHもチェックしてくれる
-            if (!Directory.Exists(path)) return Enumerable.Empty<string>();
+            if (!Directory.Exists(basePath)) return Enumerable.Empty<string>();
 
-            return Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
+            return Directory.GetFiles(basePath, "*", SearchOption.TopDirectoryOnly)
                 .Select(p => Path.GetFileName(p));
         }
 
