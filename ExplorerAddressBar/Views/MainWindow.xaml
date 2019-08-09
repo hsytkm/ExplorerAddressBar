@@ -1,0 +1,40 @@
+﻿<Window x:Class="ExplorerAddressBar.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:v="clr-namespace:ExplorerAddressBar.Views"
+        xmlns:vm="clr-namespace:ExplorerAddressBar.ViewModels"
+        mc:Ignorable="d"
+        Title="ExplorerAddressBar"
+        Height="500" Width="500" >
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    
+    <Grid Margin="0,20,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBox Text="{Binding BasePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="{Binding ChildDirectories.Value, Mode=OneWay}" />
+
+            <Border Grid.Column="1" Background="Gray" Width="3" />
+            
+            <TextBlock Grid.Column="2"
+                       Text="{Binding ChildFiles.Value, Mode=OneWay}" />
+        </Grid>
+    </Grid>
+    
+</Window>
