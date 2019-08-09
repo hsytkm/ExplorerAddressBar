@@ -63,25 +63,6 @@ namespace ExplorerAddressBar.Views
 
         #endregion
 
-        #region SelectedDirectoryItem
-
-        // コードビハインドで生成されるComboBoxでBindingされるプロパティ
-        public DirectoryItem SelectedDirectoryItem
-        {
-            get => _SelectedDirectoryItem;
-            set
-            {
-                if (_SelectedDirectoryItem != value)
-                {
-                    _SelectedDirectoryItem = value;
-                    SelectedDirectoryFullPath = value.FullPath;
-                }
-            }
-        }
-        private DirectoryItem _SelectedDirectoryItem;
-
-        #endregion
-
         public AddressBar()
         {
             InitializeComponent();
@@ -95,20 +76,76 @@ namespace ExplorerAddressBar.Views
             if (actualWidth == 0) return;
             if (nodes is null || !nodes.Any()) return;
 
+            //System.Diagnostics.Debug.WriteLine($"Update(ActualWidth: {actualWidth})");
+
             // ディレクトリ名のボタンを追加
-            groundPanel.Children.Clear();
-            foreach (var dirButton in GetDirectoryNameButtons(nodes))
-            {
-                groundPanel.Children.Add(dirButton);
-            }
+            var uIElements = GetDirectoryNameButtons(nodes).ToList();
 
             // 末尾ディレクトリの子ディレクトリ選択コントロール
             var tailDirChildren = GetTailDirectoryChildren(nodes.LastOrDefault());
-            if (tailDirChildren != null)
+            if (tailDirChildren != null) uIElements.Add(tailDirChildren);
+
+            groundPanel.Children.Clear();
+            groundPanel.Children.Add(GetGrid(uIElements));
+        }
+
+        #region Grid
+
+        // アドレスバーの有効サイズを知るためGridにまとめる
+        private Grid GetGrid(IList<UIElement> uIElements)
+        {
+            var grid = new Grid();
+            //grid.Background = new SolidColorBrush(Colors.Red);
+
+            for (int c = 0; c < uIElements.Count; c++)
             {
-                groundPanel.Children.Add(tailDirChildren);
+                grid.ColumnDefinitions.Add(new ColumnDefinition());
+                Grid.SetColumn(uIElements[c], c);
+                grid.Children.Add(uIElements[c]);
+            }
+
+            // ◆Gridがどれだけ隠れているかを取得したいが分からず困ってる
+            //   MainWindowが120でも、Gridを伸ばすと、MainWindowのWidthもそれに応じて伸びる(表示は120のまま)
+            //   つまり、Grid.ActualWidth > MainWindow.ActualWidth の関係にならない。
+            //   各コントロールのWidthからGridが隠れていることが分からない。
+
+            // 検討を再開する場合は、以下のコードを有効にする
+            //grid.SizeChanged += (sender, e) => Grid_SizeChanged(sender, e);
+
+            return grid;
+        }
+
+        private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (!(sender is Grid grid)) return;
+            var parentWidth = GetParentElementActualWidth(grid);
+            var windowWidth = GetWindowActualWidth(grid);
+
+            Console.WriteLine($"Grid.SizeChanged(): Width={e.NewSize.Width}, ParentWidth={parentWidth}, WindowWidth={parentWidth}");
+
+            var elementWidths = grid.ColumnDefinitions.Select(x => x.ActualWidth);
+
+            foreach (var width in elementWidths)
+            {
+                Console.WriteLine($" elem.SizeChanged(): ActualWidth={width}");
             }
         }
+
+        private double GetParentElementActualWidth(FrameworkElement element)
+        {
+            if (!(element.Parent is FrameworkElement parent)) return 0;
+            return parent.ActualWidth;
+        }
+
+        private double GetWindowActualWidth(FrameworkElement element)
+        {
+            var parentWindow = Window.GetWindow(element);
+            return parentWindow.ActualWidth;
+        }
+
+        #endregion
+
+        #region Button
 
         // ディレクトリ名のボタンコントロール
         private IEnumerable<UIElement> GetDirectoryNameButtons(IList<DirectoryNode> nodes)
@@ -129,6 +166,25 @@ namespace ExplorerAddressBar.Views
             }
         }
 
+        #endregion
+
+        #region ComboBox
+
+        // コードビハインドで生成されるComboBoxでBindingされるプロパティ
+        public DirectoryItem SelectedDirectoryItem
+        {
+            get => _SelectedDirectoryItem;
+            set
+            {
+                if (_SelectedDirectoryItem != value)
+                {
+                    _SelectedDirectoryItem = value;
+                    SelectedDirectoryFullPath = value.FullPath;
+                }
+            }
+        }
+        private DirectoryItem _SelectedDirectoryItem;
+
         //<ComboBox ItemsSource="{Binding ChildDirectories, Mode=OneWay}"
         //          SelectedValue="{Binding SelectedDirectory.Value, Mode=TwoWay}"
         //          IsEnabled="{Binding HasChildDirectory.Value, Mode=OneWay}" >
@@ -141,6 +197,9 @@ namespace ExplorerAddressBar.Views
         private UIElement GetTailDirectoryChildren(DirectoryNode tailNode)
         {
             if (tailNode is null) return null;
+
+            // 末端ディレクトリならComboBoxを表示しない
+            if (!tailNode.ChildDirectoryNames.Any()) return null;
 
             // ComboBox.ItemTemplate
             var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
@@ -168,6 +227,9 @@ namespace ExplorerAddressBar.Views
 
             return element;
         }
+
+        #endregion
+
 
         // MVVM:とにかく適当なICommandを実装したい時のサンプル http://running-cs.hatenablog.com/entry/2016/09/03/211015
         private class RelayCommand : ICommand
