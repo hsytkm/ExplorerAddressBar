@@ -16,25 +16,42 @@
     <Grid Margin="0,20,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <TextBox Text="{Binding BasePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-        <Grid Grid.Row="1">
+        <TextBox Grid.Row="1"
+                 Margin="0,5"
+                 Text="{Binding BasePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+        <Grid Grid.Row="2" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="{Binding ChildDirectories.Value, Mode=OneWay}" />
+            <ComboBox Height="20" VerticalAlignment="Top"
+                      ItemsSource="{Binding ChildDirectories, Mode=OneWay}"
+                      SelectedValue="{Binding SelectedDirectory.Value, Mode=TwoWay}"
+                      IsEnabled="{Binding HasChildDirectory.Value, Mode=OneWay}"
+                      >
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
             <Border Grid.Column="1" Background="Gray" Width="3" />
             
             <TextBlock Grid.Column="2"
                        Text="{Binding ChildFiles.Value, Mode=OneWay}" />
         </Grid>
+
+
     </Grid>
     
 </Window>

@@ -1,6 +1,9 @@
 ﻿using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -11,46 +14,56 @@ namespace ExplorerAddressBar.ViewModels
     {
         private const string InitialPath = @"C:\data\";
 
+        // 選択中ディレクトリPATH
         public ReactiveProperty<string> BasePath { get; } = new ReactiveProperty<string>(initialValue: InitialPath);
 
-        public ReadOnlyReactiveProperty<string> ChildDirectories { get; }
+        // 選択中ディレクトリが子ディレクトリ持つかフラグ
+        public ReactiveProperty<bool> HasChildDirectory { get; } = new ReactiveProperty<bool>();
+
+        // 選択中ディレクトリが子ファイル
         public ReadOnlyReactiveProperty<string> ChildFiles { get; }
+
+        // 選択候補のディレクトリ達
+        public ObservableCollection<DirectoryItem> ChildDirectories { get; } = new ObservableCollection<DirectoryItem>();
+
+        // 選択中のディレクトリ
+        public ReactiveProperty<DirectoryItem> SelectedDirectory { get; } = new ReactiveProperty<DirectoryItem>();
 
         public MainWindowViewModel()
         {
+            // 選択中ディレクトリの更新
             var directoryTree = BasePath
                 .Select(path => new DirectoryTree(path))
                 .ToReadOnlyReactivePropertySlim();
 
-            ChildDirectories = directoryTree.Select(x => GetChildDirectories(x.BasePath))
-                .Select(dirs => string.Join(Environment.NewLine, dirs))
+            // 子ディレクトリの存在チェック(もうちょいマシな実装ない？)
+            var collectionChanged = ChildDirectories.CollectionChangedAsObservable();
+            collectionChanged.Where(e => e.Action == NotifyCollectionChangedAction.Reset)
+                .Subscribe(_ => HasChildDirectory.Value = false);
+            collectionChanged.Where(e => e.Action == NotifyCollectionChangedAction.Add)
+                .Subscribe(_ => HasChildDirectory.Value = true);
+
+            // 末端ディレクトリの選択候補
+            directoryTree
+                .Select(x => x.Nodes.LastOrDefault()?.ChildDirectoryNames)
+                .Where(x => x != null)
+                .Subscribe(paths =>
+                {
+                    ChildDirectories.Clear();
+                    foreach(var path in paths) ChildDirectories.Add(path);
+                });
+
+            // ディレクトリ選択
+            SelectedDirectory.Where(x => x != null)
+                .Subscribe(x => BasePath.Value = x.FullPath);
+
+            // 末端ディレクトリ内のファイル一覧
+            ChildFiles = directoryTree
+                .Select(x => x.Nodes.LastOrDefault()?.ChildFileNames)
+                .Where(x => x != null)
+                .Select(x => string.Join(Environment.NewLine, x))
                 .ToReadOnlyReactiveProperty();
 
-            ChildFiles = directoryTree.Select(x => GetChildFiles(x.BasePath))
-                .Select(files => string.Join(Environment.NewLine, files))
-                .ToReadOnlyReactiveProperty();
-
-        }
-
-        // 引数pathディレクトリ内の子ディレクトリを返す
-        private static IEnumerable<string> GetChildDirectories(string path)
-        {
-            // Exists()の中で、null/存在しないPATHもチェックしてくれる
-            if (!Directory.Exists(path)) return Enumerable.Empty<string>();
-
-            return Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly)
-                .Select(p => p.Replace(path, ""))
-                .Select(p => p.TrimStart(Path.DirectorySeparatorChar)); // ディレクトリ先頭の\を削除
-        }
-
-        // 引数pathディレクトリ内の子ファイルを返す
-        private static IEnumerable<string> GetChildFiles(string path)
-        {
-            // Exists()の中で、null/存在しないPATHもチェックしてくれる
-            if (!Directory.Exists(path)) return Enumerable.Empty<string>();
-
-            return Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
-                .Select(p => Path.GetFileName(p));
         }
 
     }

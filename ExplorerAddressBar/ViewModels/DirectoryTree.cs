@@ -2,35 +2,50 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace ExplorerAddressBar.ViewModels
 {
     class DirectoryTree
     {
-        public string BasePath { get; }
+        public ObservableCollection<DirectoryNode> Nodes { get; }
 
-        public IList<DirectoryNode> Nodes { get; }
-
-
-        public DirectoryTree(string path)
+        public DirectoryTree(string basePath)
         {
-            BasePath = GetBasePath(path);
+            basePath = GetBasePath(basePath);
+
+            Nodes = new ObservableCollection<DirectoryNode>(
+                GetDirectoryPathTree(basePath).Select(x => new DirectoryNode(x)));
         }
 
-        private static string GetBasePath(string path)
+        // フルパスからDirectoryを順に返す(ルートから順番)
+        private static IEnumerable<string> GetDirectoryPathTree(string basePath)
+        {
+            if (string.IsNullOrEmpty(basePath)) yield break;
+
+            var path = "";
+            foreach (var dirName in basePath.Split(Path.DirectorySeparatorChar))
+            {
+                // "C:" になっちゃうので必ず最後に\付ける
+                path = Path.Combine(path, dirName) + Path.DirectorySeparatorChar;
+                yield return path;
+            }
+        }
+
+        // 基準パス
+        private static string GetBasePath(string basePath)
         {
             // nullならDesktopにする
-            //if (string.IsNullOrWhiteSpace(path))
+            //if (string.IsNullOrWhiteSpace(basePath))
             //    return Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 
             // ディレクトリ存在しなければデスクトップで上書き
-            if (!Directory.Exists(path))
+            if (!Directory.Exists(basePath))
                 return null;
                 //return Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 
-            // 文字末の \ は除去
-            return path.TrimEnd(Path.DirectorySeparatorChar);
+            // 文字列末尾の \ は除去
+            return basePath.TrimEnd(Path.DirectorySeparatorChar);
         }
 
     }
