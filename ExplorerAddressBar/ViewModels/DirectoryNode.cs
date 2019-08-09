@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
 namespace ExplorerAddressBar.ViewModels
 {
-    class DirectoryItem
+    public class DirectoryItem
     {
         public string FullPath { get; }
         public string Name { get; }
 
-        public DirectoryItem(string path)
+        public DirectoryItem(string fullPath, string dirName)
         {
-            FullPath = path;
-            Name = path.Split(Path.DirectorySeparatorChar).Last();
+            FullPath = fullPath;
+            Name = dirName;
         }
     }
 
     class DirectoryNode
     {
+        public string Name { get; }
+
         public string BasePath { get; }
 
         public IList<DirectoryItem> ChildDirectoryNames { get; private set; }
@@ -28,6 +29,7 @@ namespace ExplorerAddressBar.ViewModels
 
         public DirectoryNode(string path)
         {
+            Name = GetDirectoryName(path);
             BasePath = path;
             Update();
         }
@@ -43,22 +45,44 @@ namespace ExplorerAddressBar.ViewModels
         // 引数pathディレクトリ内の子ディレクトリを返す
         private static IEnumerable<DirectoryItem> GetChildDirectories(string basePath)
         {
-            // Exists()の中で、null/存在しないPATHもチェックしてくれる
-            if (!Directory.Exists(basePath)) return Enumerable.Empty<DirectoryItem>();
+            var empty = Enumerable.Empty<DirectoryItem>();
 
-            return Directory.GetDirectories(basePath, "*", SearchOption.TopDirectoryOnly)
-                .Select(p => new DirectoryItem(p));
+            // Exists()の中で、null/存在しないPATHもチェックしてくれる
+            if (!Directory.Exists(basePath)) return empty;
+
+            try
+            {
+                return Directory.GetDirectories(basePath, "*", SearchOption.TopDirectoryOnly)
+                    .Select(p => new DirectoryItem(p, GetDirectoryName(p)));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return empty;   // アクセス権のないフォルダにアクセスした場合は無視
+            }
         }
 
         // 引数pathディレクトリ内の子ファイルを返す
         private static IEnumerable<string> GetChildFiles(string basePath)
         {
-            // Exists()の中で、null/存在しないPATHもチェックしてくれる
-            if (!Directory.Exists(basePath)) return Enumerable.Empty<string>();
+            var empty = Enumerable.Empty<string>();
 
-            return Directory.GetFiles(basePath, "*", SearchOption.TopDirectoryOnly)
-                .Select(p => Path.GetFileName(p));
+            // Exists()の中で、null/存在しないPATHもチェックしてくれる
+            if (!Directory.Exists(basePath)) return empty;
+
+            try
+            {
+                return Directory.GetFiles(basePath, "*", SearchOption.TopDirectoryOnly)
+                    .Select(p => Path.GetFileName(p));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return empty;   // アクセス権のないフォルダにアクセスした場合は無視
+            }
         }
+
+        // ディレクトリのフルパスから末尾のディレクトリ名を取得する
+        public static string GetDirectoryName(string path)
+            => path.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Last();
 
     }
 }
