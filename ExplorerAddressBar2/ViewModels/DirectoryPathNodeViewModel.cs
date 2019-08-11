@@ -10,78 +10,77 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExplorerAddressBar2.ViewModels
 {
     class DirectoryPathNodeViewModel : BindableBase, INavigationAware
     {
-        private const string DirectoryPathKey = nameof(DirectoryPathKey);
+        private const string DirectoryNodeKey = nameof(DirectoryNodeKey);
 
         // 対象ディレクトリPATH
-        private readonly ReactiveProperty<string> _directoryPath = new ReactiveProperty<string>();
+        private readonly ReactiveProperty<DirectoryNode> _directoryNode = new ReactiveProperty<DirectoryNode>();
 
         // Viewで選択されたディレクトリ
-        public ReactiveProperty<DirectoryItem> SelectedDirectory { get; } =
-            new ReactiveProperty<DirectoryItem>();
+        public ReactiveProperty<DirectoryNode> SelectedDirectory { get; } = new ReactiveProperty<DirectoryNode>();
 
-        // 子ディレクトリを持つか(末端ディレクトリ)フラグ
-        public ReadOnlyReactiveProperty<bool> HasChildDirectory { get; }
-        
         // 対象ディレクトリ名
         public ReadOnlyReactiveProperty<string> DirectoryName { get; }
 
+        // 子ディレクトリを持つか(末端ディレクトリ)フラグ
+        public ReadOnlyReactiveProperty<bool> HasChildDirectory { get; }
+
         // 対象ディレクトリ内のディレクトリ
-        public ReadOnlyReactiveProperty<IList<DirectoryItem>> ChildDirectoryItems { get; }
+        public ReactiveCollection<DirectoryNode> ChildDirectoryNodes { get; }
 
         public DirectoryPathNodeViewModel(IContainerExtension container)
         {
             var modelMaster = container.Resolve<ModelMaster>();
 
             // 対象ディレクトリ名
-            DirectoryName = _directoryPath
-                .Select(x => DirectoryItem.GetDirectoryName(x))
-                .ToReadOnlyReactiveProperty();
-
-            // 対象ディレクトリ内のディレクトリ
-            ChildDirectoryItems = _directoryPath
-                .Select(x => DirectoryNode.GetChildDirectoryItems(x).ToList())
-                .Cast<IList<DirectoryItem>>()
+            DirectoryName = _directoryNode
+                .Where(x => x != null)
+                .Select(x => x.Name)
                 .ToReadOnlyReactiveProperty();
 
             // 子ディレクトリを持つか(末端ディレクトリ)フラグ
-            HasChildDirectory = _directoryPath
-                .Select(x => DirectoryNode.GetChildDirectoryItems(x).Any())
+            HasChildDirectory = _directoryNode
+                .Where(x => x != null)
+                .Select(x => x.GetChildDirectoryNodes().Any())
                 .ToReadOnlyReactiveProperty();
 
-            // Viewで選択されたディレクトリ
+            // 対象ディレクトリ内のディレクトリ
+            ChildDirectoryNodes = _directoryNode
+                .Where(x => x != null)
+                .Select(x => x.GetChildDirectoryNodes())
+                .SelectMany(x => x)
+                .ToReactiveCollection();
+
+            // Viewからのディレクトリ選択
             SelectedDirectory
                 .Where(x => x != null)
-                .Subscribe(x => modelMaster.TargetDirectoryPath = x.FullPath);
+                .Do(x => modelMaster.TargetDirectoryPath = x.FullPath)  // 選択結果を通知
+                .Subscribe(x => SelectedDirectory.Value = null);        // 通知したら空に戻す(値保持しない)
 
         }
 
         #region INavigationAware
 
-        public static NavigationParameters GetNavigationParameters(string directoryPath) =>
+        public static NavigationParameters GetNavigationParameters(DirectoryNode directoryNode) =>
             new NavigationParameters
                 {
-                    { DirectoryPathKey, directoryPath },
+                    { DirectoryNodeKey, directoryNode },
                 };
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            if (navigationContext.Parameters[DirectoryPathKey] is string directoryPath)
-            {
-                _directoryPath.Value = directoryPath;
-            }
+            if (navigationContext.Parameters[DirectoryNodeKey] is DirectoryNode directoryNode)
+                _directoryNode.Value = directoryNode;
         }
 
         public bool IsNavigationTarget(NavigationContext navigationContext)
         {
-            if (navigationContext.Parameters[DirectoryPathKey] is string directoryPath)
-                return directoryPath != null && _directoryPath.Value == directoryPath;
+            if (navigationContext.Parameters[DirectoryNodeKey] is DirectoryNode directoryNode)
+                return directoryNode != null && _directoryNode.Value.FullPath == directoryNode.FullPath;
             return true;
         }
 

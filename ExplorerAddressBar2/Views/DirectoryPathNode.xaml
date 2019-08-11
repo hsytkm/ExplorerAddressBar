@@ -9,13 +9,19 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
 
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <StackPanel Orientation="Horizontal" >
         <!--  -->
         <TextBlock Text="{Binding DirectoryName.Value, Mode=OneWay}" />
 
-        <ComboBox ItemsSource="{Binding ChildDirectoryItems.Value, Mode=OneWay}"
+        <ComboBox Width="18"
+                  ItemsSource="{Binding ChildDirectoryNodes, Mode=OneWay}"
                   SelectedValue="{Binding SelectedDirectory.Value, Mode=TwoWay}"
-                  IsEnabled="{Binding HasChildDirectory.Value, Mode=OneWay}" >
+                  Visibility="{Binding HasChildDirectory.Value, Mode=OneWay,
+                                       Converter={StaticResource BooleanToVisibilityConverter}}" >
             
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -25,4 +31,5 @@
         </ComboBox>
 
     </StackPanel>
+    
 </UserControl>

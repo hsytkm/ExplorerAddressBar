@@ -36,7 +36,8 @@ namespace ExplorerAddressBar2.ViewModels
 
             // 末端ディレクトリ内のファイル一覧
             ChildFiles = directoryTree
-                .Select(x => x.Nodes.LastOrDefault()?.ChildFileNames)
+                //.Select(x => x.Nodes.LastOrDefault()?.ChildFileNames)
+                .Select(x => x.Nodes.LastOrDefault()?.GetChildFileNames())
                 .Where(x => x != null)
                 .Select(x => string.Join(Environment.NewLine, x))
                 .ToReadOnlyReactiveProperty();

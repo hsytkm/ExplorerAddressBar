@@ -18,35 +18,17 @@ namespace ExplorerAddressBar2.ViewModels
         private const string DirectoryPathNodeRegionName = "DirectoryPathNodeRegion";
 
         private readonly IRegionManager _regionManager;
-        private readonly ModelMaster _modelMaster;
-
-        // 選択ディレクトリのノードチェーン
-        public ReadOnlyReactiveCollection<string> DirectoryPathChain { get; }
+        //private readonly ModelMaster _modelMaster;
 
         public DirectoryPathBarViewModel(IContainerExtension container, IRegionManager regionManager)
         {
             _regionManager = regionManager;
-            _modelMaster = container.Resolve<ModelMaster>();
+            var modelMaster = container.Resolve<ModelMaster>();
 
             // 選択中ディレクトリの更新
-            var directoryNodeChain = _modelMaster
+            modelMaster
                 .ObserveProperty(x => x.TargetDirectoryPath)
-                .Select(path => new DirectoryTree(path))
-                .Select(x => x.Nodes)
-                .ToReadOnlyReactivePropertySlim();
-
-            // PATH階層のリスト
-            DirectoryPathChain = directoryNodeChain.SelectMany(x => x)
-                .Select(x => x.FullPath)
-                .ToReadOnlyReactiveCollection(
-                    directoryNodeChain
-                        .Where(x => !x.Any())
-                        .Select(_ => Unit.Default));
-
-            _modelMaster
-                .ObserveProperty(x => x.TargetDirectoryPath)
-                .Select(path => new DirectoryTree(path))
-                .Select(x => x.Nodes)
+                .Select(path => new DirectoryTree(path).Nodes)
                 .Subscribe(AddViewNode);
 
         }
@@ -62,11 +44,12 @@ namespace ExplorerAddressBar2.ViewModels
             if (_regionManager.Regions.ContainsRegionWithName(regionName))
                 _regionManager.Regions[regionName].RemoveAll();
 
-            foreach (var directoryPath in directoryNodes.Select(x => x.FullPath))
+            foreach (var directoryNode in directoryNodes)
             {
-                var parameters = DirectoryPathNodeViewModel.GetNavigationParameters(directoryPath);
+                var parameters = DirectoryPathNodeViewModel.GetNavigationParameters(directoryNode);
                 _regionManager.RequestNavigate(regionName, nameof(DirectoryPathNode), parameters);
             }
         }
+
     }
 }
