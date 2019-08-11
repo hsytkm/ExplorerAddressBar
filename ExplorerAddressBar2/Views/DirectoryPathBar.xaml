@@ -10,9 +10,15 @@
              d:DesignHeight="450" d:DesignWidth="800">
 
     <ItemsControl prism:RegionManager.RegionName="DirectoryPathNodeRegion"
-                  Height="200"
+                  Height="20"
                   Background="Pink" >
-
+        
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        
         <!--
         <ItemsControl.ItemTemplate>
             <DataTemplate>

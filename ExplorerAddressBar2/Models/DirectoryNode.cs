@@ -12,15 +12,30 @@ namespace ExplorerAddressBar2.Models
 
         public DirectoryNode(string fullPath)
         {
-            FullPath = fullPath;
+            FullPath = EmendFullPath(fullPath);
             Name = GetDirectoryName(fullPath);
         }
+
+        // 子ディレクトリがあるかフラグ
+        public bool HasChildDirectory() => GetChildDirectoryNodes(FullPath).Any();
 
         // 引数pathディレクトリ内の子ファイルを返す
         public IEnumerable<DirectoryNode> GetChildDirectoryNodes() => GetChildDirectoryNodes(FullPath);
 
         // 引数pathディレクトリ内の子ファイルを返す
         public IEnumerable<string> GetChildFileNames() => GetChildFileNames(FullPath);
+
+        // FullPathを整形
+        private static string EmendFullPath(string srcPath)
+        {
+            if (srcPath.Last() == Path.DirectorySeparatorChar)
+            {
+                // "C:\" は \ を除去しない
+                if (srcPath.Skip(srcPath.Count() - 2).First() != Path.VolumeSeparatorChar)
+                    return srcPath.TrimEnd(Path.DirectorySeparatorChar);
+            }
+            return srcPath;
+        }
 
         // ディレクトリのフルパスから末尾のディレクトリ名を取得する
         private static string GetDirectoryName(string path) =>

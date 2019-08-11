@@ -14,10 +14,15 @@
     </UserControl.Resources>
 
     <StackPanel Orientation="Horizontal" >
-        <!--  -->
-        <TextBlock Text="{Binding DirectoryName.Value, Mode=OneWay}" />
+        <Button Margin="1,0"
+                Padding="7,2"
+                Background="Transparent"
+                Content="{Binding TargetDirectoryNode.Value.Name, Mode=OneWay}"
+                Command="{Binding SelectDirectoryCommand, Mode=OneTime}"
+                CommandParameter="{Binding TargetDirectoryNode.Value, Mode=OneWay}" />
 
-        <ComboBox Width="18"
+        <ComboBox Margin="1,0"
+                  Width="18"
                   ItemsSource="{Binding ChildDirectoryNodes, Mode=OneWay}"
                   SelectedValue="{Binding SelectedDirectory.Value, Mode=TwoWay}"
                   Visibility="{Binding HasChildDirectory.Value, Mode=OneWay,
