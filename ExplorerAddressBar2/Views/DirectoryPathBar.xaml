@@ -9,48 +9,32 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <ItemsControl prism:RegionManager.RegionName="DirectoryPathNodeRegion"
-                  Height="20"
-                  Background="Pink" >
-        
-        <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-                <StackPanel Orientation="Horizontal" />
-            </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        
-        <!--
-        <ItemsControl.ItemTemplate>
-            <DataTemplate>
-                <StackPanel Orientation="Horizontal" >
-                    <TextBlock Text="{Binding DataContext.DirectoryName.Value}" />
-                </StackPanel>
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
+    <!-- ItemsControl攻略 ～ 外観のカスタマイズ http://grabacr.net/archives/1240 -->
+    <!-- Standard Controls - ItemsControl http://yujiro15.net/YKSoftware/StandardControls_ItemsControl.html -->
 
-        <ItemsControl.ItemContainerStyle>
-            <Style TargetType="ListBoxItem">
-                <Setter Property="OverridesDefaultStyle" Value="True" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type ContentControl}">
-                            <Border Background="{TemplateBinding Background}">
-                                <ContentPresenter />
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="Plum" />
-                    </Trigger>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="LightGray" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-        </ItemsControl.ItemContainerStyle>
-        -->
-        
-    </ItemsControl>
+    <!-- MainWindowが小さくなっても本来のサイズを取得するためScrollViewerで包む -->
+    <ScrollViewer VerticalScrollBarVisibility="Hidden"
+                  HorizontalScrollBarVisibility="Hidden" >
+
+        <!-- ItemsControlの不使用領域を含ませないためGridで包む -->
+        <Grid Background="SkyBlue" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ItemsControl x:Name="PathBarBody"
+                          prism:RegionManager.RegionName="DirectoryPathNodeRegion"
+                          Height="20"
+                          Background="Pink" >
+
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
+    
 </UserControl>
