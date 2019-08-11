@@ -1,0 +1,34 @@
+﻿<Window x:Class="ExplorerAddressBar2.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        xmlns:v="clr-namespace:ExplorerAddressBar2.Views"
+        mc:Ignorable="d"
+        Title="ExplorerAddressBar2"
+        Height="500" Width="500" >
+
+    <Grid Margin="0,20,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--
+        <v:AddressBar DirectoryNodeChain="{Binding DirectoryNodeChain.Value, Mode=OneWay}"
+                      SelectedDirectoryFullPath="{Binding BasePath.Value, Mode=TwoWay}" />
+        -->
+
+        <TextBox Grid.Row="1"
+                 Margin="0,5"
+                 Text="{Binding BasePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock Grid.Row="2"
+                   Text="{Binding ChildFiles.Value, Mode=OneWay}" />
+
+    </Grid>
+
+</Window>
