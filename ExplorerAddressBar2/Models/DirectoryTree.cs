@@ -13,22 +13,7 @@ namespace ExplorerAddressBar2.Models
         {
             basePath = GetBasePath(basePath);
 
-            Nodes = GetDirectoryPathTree(basePath).Select(x => new DirectoryNode(x)).ToList();
-        }
-
-        // フルパスからDirectoryを順に返す(ルートから順番)
-        private static IEnumerable<string> GetDirectoryPathTree(string basePath)
-        {
-            if (string.IsNullOrEmpty(basePath)) yield break;
-
-            var path = "";
-            foreach (var dirName in basePath
-                .Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                // "C:" になっちゃうので必ず最後に\付ける
-                path = Path.Combine(path, dirName) + Path.DirectorySeparatorChar;
-                yield return path;
-            }
+            Nodes = DirectoryItem.GetDirectoriesPath(basePath).Select(x => new DirectoryNode(x)).ToList();
         }
 
         // 基準パス

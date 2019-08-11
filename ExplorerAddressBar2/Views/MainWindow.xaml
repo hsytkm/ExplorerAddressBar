@@ -17,10 +17,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!--
-        <v:AddressBar DirectoryNodeChain="{Binding DirectoryNodeChain.Value, Mode=OneWay}"
-                      SelectedDirectoryFullPath="{Binding BasePath.Value, Mode=TwoWay}" />
-        -->
+        <ContentControl prism:RegionManager.RegionName="DirectoryPathBarRegion" />
 
         <TextBox Grid.Row="1"
                  Margin="0,5"
@@ -28,7 +25,7 @@
 
         <TextBlock Grid.Row="2"
                    Text="{Binding ChildFiles.Value, Mode=OneWay}" />
-
+        
     </Grid>
 
 </Window>

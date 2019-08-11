@@ -1,4 +1,5 @@
-﻿using ExplorerAddressBar2.Views;
+﻿using ExplorerAddressBar2.Models;
+using ExplorerAddressBar2.Views;
 using Prism.Ioc;
 using Prism.Unity;
 using System.Windows;
@@ -17,6 +18,8 @@ namespace ExplorerAddressBar2
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterSingleton<ModelMaster>();
+            containerRegistry.RegisterForNavigation<DirectoryPathNode>();
         }
     }
 }

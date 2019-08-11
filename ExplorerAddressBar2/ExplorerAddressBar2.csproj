@@ -100,6 +100,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\DirectoryPathBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DirectoryPathNode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -111,7 +119,16 @@
     <Compile Include="Models\DirectoryItem.cs" />
     <Compile Include="Models\DirectoryNode.cs" />
     <Compile Include="Models\DirectoryTree.cs" />
+    <Compile Include="Models\ModelMaster.cs" />
+    <Compile Include="ViewModels\DirectoryPathNodeViewModel.cs" />
+    <Compile Include="ViewModels\DirectoryPathBarViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Views\DirectoryPathBar.xaml.cs">
+      <DependentUpon>DirectoryPathBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DirectoryPathNode.xaml.cs">
+      <DependentUpon>DirectoryPathNode.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

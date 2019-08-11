@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Prism.Regions;
+using System.Windows;
 
 namespace ExplorerAddressBar2.Views
 {
@@ -7,9 +8,11 @@ namespace ExplorerAddressBar2.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(IRegionManager regionManager)
         {
             InitializeComponent();
+
+            regionManager.RegisterViewWithRegion("DirectoryPathBarRegion", typeof(DirectoryPathBar));
         }
     }
 }
