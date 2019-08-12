@@ -120,8 +120,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\DirectoryNode.cs" />
-    <Compile Include="Models\DirectoryTree.cs" />
+    <Compile Include="ViewModels\DirectoryNode.cs" />
     <Compile Include="Models\ModelMaster.cs" />
     <Compile Include="ViewModels\DirectoryPathNodeViewModel.cs" />
     <Compile Include="ViewModels\DirectoryPathBarViewModel.cs" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ExplorerAddressBar2.Models
+namespace ExplorerAddressBar2.ViewModels
 {
     public class DirectoryNode
     {
@@ -61,7 +61,7 @@ namespace ExplorerAddressBar2.Models
         }
 
         // 引数pathディレクトリ内の子ファイルを返す
-        private static IEnumerable<string> GetChildFileNames(string basePath)
+        public static IEnumerable<string> GetChildFileNames(string basePath)
         {
             // Exists()の中で、null/存在しないPATHもチェックしてくれる
             if (!Directory.Exists(basePath)) yield break;
@@ -77,6 +77,26 @@ namespace ExplorerAddressBar2.Models
                 yield break;   // アクセス権のないフォルダにアクセスした場合は無視
             }
             foreach (var item in items) yield return item;
+        }
+
+        // 引数ディレクトリからDirectoryNodeクラスをルートから順番に返す
+        public static IEnumerable<DirectoryNode> GetDirectoryNodes(string basePath) =>
+            GetDirectoriesPath(basePath).Select(path => new DirectoryNode(path));
+
+        // 引数ディレクトリからDirectoryPATHをルートから順番に返す
+        private static IEnumerable<string> GetDirectoriesPath(string basePath)
+        {
+            if (string.IsNullOrEmpty(basePath)) yield break;
+            if (!Directory.Exists(basePath)) yield break;
+
+            var path = "";
+            var dirNames = basePath.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var dirName in dirNames)
+            {
+                // "C:" になっちゃうので必ず最後に\付ける
+                path = Path.Combine(path, dirName) + Path.DirectorySeparatorChar;
+                yield return path;
+            }
         }
 
     }

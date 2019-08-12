@@ -66,16 +66,17 @@ namespace ExplorerAddressBar2.ViewModels
             // 選択中ディレクトリの更新(RegionにView読み出し)
             modelMaster
                 .ObserveProperty(x => x.TargetDirectoryPath)
-                .Select(path => new DirectoryTree(path).Nodes)
                 .Subscribe(AddViewNode);
         }
 
         // メタ情報クラスからView用のTabを読み出し
-        private void AddViewNode(IList<DirectoryNode> directoryNodes)
+        private void AddViewNode(string targetDirectoryPath)
         {
-            if (directoryNodes is null) throw new ArgumentNullException(nameof(directoryNodes));
+            if (string.IsNullOrEmpty(targetDirectoryPath))
+                throw new ArgumentNullException(nameof(targetDirectoryPath));
 
             var regionName = DirectoryPathNodeRegionName;
+            var directoryNodes = DirectoryNode.GetDirectoryNodes(targetDirectoryPath);
 
             // 登録済みRegionViewの削除
             if (_regionManager.Regions.ContainsRegionWithName(regionName))

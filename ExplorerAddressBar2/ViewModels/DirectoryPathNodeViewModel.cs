@@ -11,7 +11,7 @@ namespace ExplorerAddressBar2.ViewModels
 {
     class DirectoryPathNodeViewModel : BindableBase
     {
-        // 対象ディレクトリPATH
+        // 対象ディレクトリNodeクラス
         public ReactiveProperty<DirectoryNode> TargetDirectoryNode { get; } = new ReactiveProperty<DirectoryNode>();
 
         // Viewディレクトリ選択コンボボックス
