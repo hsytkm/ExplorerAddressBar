@@ -19,7 +19,6 @@ namespace ExplorerAddressBar2
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<ModelMaster>();
-            containerRegistry.RegisterForNavigation<DirectoryPathNode>();
         }
     }
 }

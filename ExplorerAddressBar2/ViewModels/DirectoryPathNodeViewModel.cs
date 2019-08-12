@@ -1,22 +1,16 @@
 ﻿using ExplorerAddressBar2.Models;
-using ExplorerAddressBar2.Views;
 using Prism.Ioc;
 using Prism.Mvvm;
-using Prism.Regions;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 
 namespace ExplorerAddressBar2.ViewModels
 {
-    class DirectoryPathNodeViewModel : BindableBase, INavigationAware
+    class DirectoryPathNodeViewModel : BindableBase
     {
-        private const string DirectoryNodeKey = nameof(DirectoryNodeKey);
-
         // 対象ディレクトリPATH
         public ReactiveProperty<DirectoryNode> TargetDirectoryNode { get; } = new ReactiveProperty<DirectoryNode>();
 
@@ -63,32 +57,9 @@ namespace ExplorerAddressBar2.ViewModels
 
         }
 
-        #region INavigationAware
-
-        public static NavigationParameters GetNavigationParameters(DirectoryNode directoryNode) =>
-            new NavigationParameters
-                {
-                    { DirectoryNodeKey, directoryNode },
-                };
-
-        public void OnNavigatedTo(NavigationContext navigationContext)
-        {
-            if (navigationContext.Parameters[DirectoryNodeKey] is DirectoryNode directoryNode)
-                TargetDirectoryNode.Value = directoryNode;
-        }
-
-        public bool IsNavigationTarget(NavigationContext navigationContext)
-        {
-            if (navigationContext.Parameters[DirectoryNodeKey] is DirectoryNode directoryNode)
-                return directoryNode != null && TargetDirectoryNode.Value.FullPath == directoryNode.FullPath;
-            return true;
-        }
-
-        public void OnNavigatedFrom(NavigationContext navigationContext)
-        {
-        }
-
-        #endregion
+        // 対象ディレクトリの設定
+        public void SetDirectoryNode(DirectoryNode directoryNode) =>
+            TargetDirectoryNode.Value = directoryNode;
 
     }
 }

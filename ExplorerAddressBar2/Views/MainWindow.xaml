@@ -19,9 +19,9 @@
 
         <ContentControl prism:RegionManager.RegionName="DirectoryPathBarRegion" />
 
-        <TextBox Grid.Row="1"
-                 Margin="0,5"
-                 Text="{Binding BasePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Row="1"
+                   Margin="0,5"
+                   Text="{Binding BasePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
         <TextBlock Grid.Row="2"
                    Text="{Binding ChildFiles.Value, Mode=OneWay}" />

@@ -18,6 +18,7 @@ namespace ExplorerAddressBar2.ViewModels
     {
         private const string DirectoryPathNodeRegionName = "DirectoryPathNodeRegion";
 
+        private readonly IContainerExtension _container;
         private readonly IRegionManager _regionManager;
 
         // テキストボックスの表示フラグ(ボタンバーと論理逆)
@@ -39,7 +40,9 @@ namespace ExplorerAddressBar2.ViewModels
 
         public DirectoryPathBarViewModel(IContainerExtension container, IRegionManager regionManager)
         {
+            _container = container;
             _regionManager = regionManager;
+
             var modelMaster = container.Resolve<ModelMaster>();
 
             // TextBoxの表示コマンド
@@ -78,10 +81,15 @@ namespace ExplorerAddressBar2.ViewModels
             if (_regionManager.Regions.ContainsRegionWithName(regionName))
                 _regionManager.Regions[regionName].RemoveAll();
 
+            // Viewを順に作成してRegionに登録
             foreach (var directoryNode in directoryNodes)
             {
-                var parameters = DirectoryPathNodeViewModel.GetNavigationParameters(directoryNode);
-                _regionManager.RequestNavigate(regionName, nameof(DirectoryPathNode), parameters);
+                _regionManager.RegisterViewWithRegion(regionName, () =>
+                {
+                    var view = _container.Resolve<DirectoryPathNode>();
+                    (view.DataContext as DirectoryPathNodeViewModel)?.SetDirectoryNode(directoryNode);
+                    return view;
+                });
             }
         }
 
