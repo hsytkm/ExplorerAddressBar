@@ -57,7 +57,7 @@ namespace ExplorerAddressBar2.ViewModels
 
         }
 
-        // 対象ディレクトリの設定
+        // 対象ディレクトリの設定(◆コンストラクタに渡す方法が分からなかったので裏からこっそり渡す)
         public void SetDirectoryNode(DirectoryNode directoryNode) =>
             TargetDirectoryNode.Value = directoryNode;
 

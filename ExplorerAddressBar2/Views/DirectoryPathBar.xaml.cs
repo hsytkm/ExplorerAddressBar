@@ -27,21 +27,26 @@ namespace ExplorerAddressBar2.Views
         {
             InitializeComponent();
 
+            #region NodeBar子要素の表示切替
+
             // NodeBarの表示幅
-            this.SizeChanged += (sender, e) =>
+            this.SizeChanged += (_, e) =>
             {
                 _nodeBarVisibleWidth = e.NewSize.Width;
                 UpdateNodesVisibility();
             };
 
             // NodeBarの制限なし幅
-            NodeItemsControl.SizeChanged += (sender, e) =>
+            NodeItemsControl.SizeChanged += (_, e) =>
             {
                 _nodeBarUnlimitedWidth = e.NewSize.Width;
                 UpdateNodesVisibility();
             };
 
-            // テキストボックスの表示時にフォーカス移行＋カーソル最終文字
+            #endregion
+
+            #region テキストボックス表示時のフォーカス移行＋カーソル最終文字
+
             DirectoryPathTextBox.IsVisibleChanged += (sender, e) =>
             {
                 if (sender is TextBox textBox && e.NewValue is bool b && b)
@@ -51,16 +56,23 @@ namespace ExplorerAddressBar2.Views
                 }
             };
 
-            // テキストボックスの外領域クリックで非表示か
+            #endregion
+
+            #region テキストボックスの外領域クリックで非表示化
+
+            DirectoryPathTextBox.MouseDown += (_, e) => e.Handled = true;
+
             this.Loaded += (_, __) =>
             {
                 var window = Window.GetWindow(this);
-                window.PreviewMouseDown += (sender, e) =>
+                window.MouseDown += (___, ____) =>
                 {
                     // ViewModelのメソッドを操作する(◆無理やり感…)
                     (this.DataContext as DirectoryPathBarViewModel).SetInvisibleTextBox();
                 };
             };
+
+            #endregion
 
         }
 
