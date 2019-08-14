@@ -126,6 +126,7 @@
     <Compile Include="ViewModels\DirectoryPathBarViewModel.cs" />
     <Compile Include="ViewModels\EventConverters\EnterKeyDownEventToTextBoxStringConverter.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Views\Converters\NotVisibilityConverter.cs" />
     <Compile Include="Views\Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Views\DirectoryPathBar.xaml.cs">
       <DependentUpon>DirectoryPathBar.xaml</DependentUpon>

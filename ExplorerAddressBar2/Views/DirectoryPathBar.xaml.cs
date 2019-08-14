@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExplorerAddressBar2.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -32,13 +33,35 @@ namespace ExplorerAddressBar2.Views
                 _nodeBarVisibleWidth = e.NewSize.Width;
                 UpdateNodesVisibility();
             };
-            
+
             // NodeBarの制限なし幅
             NodeItemsControl.SizeChanged += (sender, e) =>
             {
                 _nodeBarUnlimitedWidth = e.NewSize.Width;
                 UpdateNodesVisibility();
             };
+
+            // テキストボックスの表示時にフォーカス移行＋カーソル最終文字
+            DirectoryPathTextBox.IsVisibleChanged += (sender, e) =>
+            {
+                if (sender is TextBox textBox && e.NewValue is bool b && b)
+                {
+                    textBox.Focus();
+                    textBox.Select(DirectoryPathTextBox.Text.Length, 0);
+                }
+            };
+
+            // テキストボックスの外領域クリックで非表示か
+            this.Loaded += (_, __) =>
+            {
+                var window = Window.GetWindow(this);
+                window.PreviewMouseDown += (sender, e) =>
+                {
+                    // ViewModelのメソッドを操作する(◆無理やり感…)
+                    (this.DataContext as DirectoryPathBarViewModel).SetInvisibleTextBox();
+                };
+            };
+
         }
 
         // アドレスバーのNode(ディレクトリ)の表示を切り替える

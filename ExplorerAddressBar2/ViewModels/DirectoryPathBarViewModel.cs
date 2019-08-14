@@ -94,5 +94,8 @@ namespace ExplorerAddressBar2.ViewModels
             }
         }
 
+        // Viewのコードビハインドからテキストボックスの表示フラグをOFFする(◆イマイチ感)
+        public void SetInvisibleTextBox() => IsVisibleTextBoxPath.Value = false;
+
     }
 }

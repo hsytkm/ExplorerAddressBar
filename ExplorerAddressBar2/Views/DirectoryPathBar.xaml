@@ -11,11 +11,13 @@
              xmlns:vc="clr-namespace:ExplorerAddressBar2.Views.Converters"
              xmlns:vme="clr-namespace:ExplorerAddressBar2.ViewModels.EventConverters"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="ground"
+             Height="20" >
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <vc:InverseBooleanToVisibilityConverter x:Key="InvBoolToVisibilityConverter"/>
+        <vc:NotVisibilityConverter x:Key="NotVisibilityConverter"/>
     </UserControl.Resources>
 
     <!-- ItemsControl攻略 ～ 外観のカスタマイズ http://grabacr.net/archives/1240 -->
@@ -35,10 +37,11 @@
 
             <ItemsControl x:Name="NodeItemsControl"
                           prism:RegionManager.RegionName="DirectoryPathNodeRegion"
-                          Height="20"
+                          Height="{Binding ActualHeight, ElementName=ground, Mode=OneWay}"
                           Background="Pink"
-                          Visibility="{Binding IsVisibleTextBoxPath.Value, Mode=OneWay,
-                                               Converter={StaticResource InvBoolToVisibilityConverter}}" >
+                          Visibility="{Binding Visibility,
+                                               ElementName=DirectoryPathTextBox,
+                                               Converter={StaticResource NotVisibilityConverter}}" >
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -49,6 +52,8 @@
             <Border Grid.Column="1"
                     Background="Yellow"
                     Visibility="{Binding Visibility, ElementName=NodeItemsControl}" >
+                
+                <!-- テキストボックス表示に切り替える -->
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseLeftButtonDown" >
                         <r:EventToReactiveProperty ReactiveProperty="{Binding VisibleTextBoxPathCommand, Mode=OneTime}"
@@ -57,10 +62,14 @@
                 </i:Interaction.Triggers>
             </Border>
 
-            <TextBox Grid.ColumnSpan="2"
+            <TextBox x:Name="DirectoryPathTextBox"
+                     Grid.ColumnSpan="2"
+                     VerticalContentAlignment="Center"
                      Text="{Binding TargetDirectoryPath, Mode=OneWay}"
                      Visibility="{Binding IsVisibleTextBoxPath.Value, Mode=OneWay,
                                           Converter={StaticResource BooleanToVisibilityConverter}}" >
+
+                <!-- テキストボックスのPATHを確定させて非表示にする -->
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="KeyDown" >
                         <r:EventToReactiveProperty ReactiveProperty="{Binding SetTextBoxPathCommand, Mode=OneTime}" >

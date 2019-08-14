@@ -1,17 +1,17 @@
-﻿#if false
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
 namespace ExplorerAddressBar2.Views.Converters
 {
-    [ValueConversion(typeof(bool), typeof(Visibility))]
-    class InverseBooleanToVisibilityConverter : IValueConverter
+    [ValueConversion(typeof(Visibility), typeof(Visibility))]
+    class NotVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool b && b) return Visibility.Collapsed;
+            if (value is Visibility v && v == Visibility.Visible)
+                return Visibility.Collapsed;
             return Visibility.Visible;
         }
 
@@ -20,4 +20,3 @@ namespace ExplorerAddressBar2.Views.Converters
 
     }
 }
-#endif
