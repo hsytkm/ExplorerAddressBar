@@ -33,7 +33,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <ItemsControl x:Name="PathBarBody"
+            <ItemsControl x:Name="NodeItemsControl"
                           prism:RegionManager.RegionName="DirectoryPathNodeRegion"
                           Height="20"
                           Background="Pink"
@@ -48,7 +48,7 @@
 
             <Border Grid.Column="1"
                     Background="Yellow"
-                    Visibility="{Binding Visibility, ElementName=PathBarBody}" >
+                    Visibility="{Binding Visibility, ElementName=NodeItemsControl}" >
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseLeftButtonDown" >
                         <r:EventToReactiveProperty ReactiveProperty="{Binding VisibleTextBoxPathCommand, Mode=OneTime}"

@@ -15,7 +15,7 @@ namespace ExplorerAddressBar2.ViewModels
         public ReactiveProperty<DirectoryNode> TargetDirectoryNode { get; } = new ReactiveProperty<DirectoryNode>();
 
         // Viewディレクトリ選択コンボボックス
-        public ReactiveProperty<DirectoryNode> SelectedDirectory { get; } = new ReactiveProperty<DirectoryNode>();
+        public ReactiveProperty<DirectoryNode> SelectedDirectoryNode { get; } = new ReactiveProperty<DirectoryNode>();
 
         // 子ディレクトリを持つか(末端ディレクトリ)フラグ
         public ReadOnlyReactiveProperty<bool> HasChildDirectory { get; }
@@ -44,10 +44,10 @@ namespace ExplorerAddressBar2.ViewModels
                 .ToReactiveCollection();
 
             // Viewからのディレクトリ選択コンボボックス
-            SelectedDirectory
+            SelectedDirectoryNode
                 .Where(x => x != null)
                 .Do(x => modelMaster.TargetDirectoryPath = x.FullPath)  // 選択結果を通知
-                .Subscribe(x => SelectedDirectory.Value = null);        // 通知したら空に戻す(値保持しない)
+                .Subscribe(x => SelectedDirectoryNode.Value = null);    // 通知したら空に戻す(値保持しない)
 
             // ディレクトリ選択ボタン
             SelectDirectoryCommand

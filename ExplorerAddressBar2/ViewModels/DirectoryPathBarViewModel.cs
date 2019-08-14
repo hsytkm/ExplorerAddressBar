@@ -53,7 +53,7 @@ namespace ExplorerAddressBar2.ViewModels
             SetTextBoxPathCommand
                 .Subscribe(path =>
                 {
-                    // 入力のディレクトリが存在したらModel反映
+                    // 入力のディレクトリが存在したらModelに通知
                     if (Directory.Exists(path)) modelMaster.TargetDirectoryPath = path;
 
                     IsVisibleTextBoxPath.Value = false;

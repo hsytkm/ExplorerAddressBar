@@ -7,13 +7,18 @@ namespace ExplorerAddressBar2.ViewModels
 {
     public class DirectoryNode
     {
-        public string FullPath { get; }
-        public string Name { get; }
+        // ディレクトリ略名の最大文字列(5文字なら "dire..." となる)
+        private static readonly int AbbreviationNameLengthMax = 10;
+
+        public string FullPath { get; } // ディレクトリのフルパス
+        public string FullName { get; } // ディレクトリ名
+        public string AbbrName { get; } // Abbreviation=略語
 
         public DirectoryNode(string fullPath)
         {
             FullPath = EmendFullPath(fullPath);
-            Name = GetDirectoryName(fullPath);
+            FullName = GetDirectoryName(fullPath);
+            AbbrName = GetAbbreviationDirectoryName(FullName);
         }
 
         // 子ディレクトリがあるかフラグ
@@ -37,9 +42,18 @@ namespace ExplorerAddressBar2.ViewModels
             return srcPath;
         }
 
-        // ディレクトリのフルパスから末尾のディレクトリ名を取得する
-        private static string GetDirectoryName(string path) =>
-            path?.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Last();
+        // フルパスから末端ディレクトリのView用の略名を取得する
+        private static string GetAbbreviationDirectoryName(string dirName)
+        {
+            var lengthMax = AbbreviationNameLengthMax;
+            if (dirName.Length > lengthMax - 1)
+                dirName = dirName.Substring(0, lengthMax - 1) + "...";
+            return dirName;
+        }
+
+        // ディレクトリのフルパスから末端ディレクトリ名を取得する
+        private static string GetDirectoryName(string fullPath) =>
+            fullPath?.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Last();
 
         // 引数pathディレクトリ内の子ディレクトリを返す
         private static IEnumerable<DirectoryNode> GetChildDirectoryNodes(string basePath)

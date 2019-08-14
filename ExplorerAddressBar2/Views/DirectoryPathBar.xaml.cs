@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,29 +11,118 @@ namespace ExplorerAddressBar2.Views
     /// </summary>
     public partial class DirectoryPathBar : UserControl
     {
-        private double _visibleWidth;
-        private double _unlimitWidth;
+        private double _nodeBarVisibleWidth;    // NodeBarの表示幅
+        private double _nodeBarUnlimitedWidth;  // NodeBarの制限なし幅(理想幅)
+
+        /// <summary>
+        /// NodeBarの子要素と積み上げ幅の逆順リスト(逆=末端ディレクトリが先頭)
+        /// FrameworkElementのVisibilityをCollapsedにするとサイズが取得できなくなるので、
+        /// 表示中にサイズを保持する
+        /// </summary>
+        private readonly IList<(FrameworkElement Element, double SumWidth)> fwElementWidths =
+            new List<(FrameworkElement Element, double SumWidth)>();
 
         public DirectoryPathBar()
         {
             InitializeComponent();
 
-#if true    // サイズ確認
-            PathBarBody.SizeChanged += (sender, e) =>
+            // NodeBarの表示幅
+            this.SizeChanged += (sender, e) =>
             {
-                _unlimitWidth = e.NewSize.Width;
+                _nodeBarVisibleWidth = e.NewSize.Width;
+                UpdateNodesVisibility();
             };
-
-            this.Loaded += (_, __) =>
+            
+            // NodeBarの制限なし幅
+            NodeItemsControl.SizeChanged += (sender, e) =>
             {
-                this.SizeChanged += (sender, e) =>
+                _nodeBarUnlimitedWidth = e.NewSize.Width;
+                UpdateNodesVisibility();
+            };
+        }
+
+        // アドレスバーのNode(ディレクトリ)の表示を切り替える
+        private void UpdateNodesVisibility()
+        {
+            double visibleWidth = _nodeBarVisibleWidth;
+            double unlimitedWidth = _nodeBarUnlimitedWidth;
+            if (visibleWidth == 0 || unlimitedWidth == 0) return;
+
+            //System.Diagnostics.Debug.WriteLine($"DirectoryPathBar Width: {visibleWidth:f2} / {unlimitedWidth:f2}");
+
+            // ItemsControlの子要素達
+            var sources = GetItemsControlSources(NodeItemsControl);
+
+            // 全コントロールがVisibleの時点でバッファする
+            var feWidths = buffItemSourcesWidths(sources);
+
+            // 表示の余白幅(正数なら表示させる方向)
+            if (visibleWidth - unlimitedWidth < 0)
+            {
+                // 表示幅が狭まったので非表示化する
+                toCollapseNodes(feWidths, visibleWidth);
+            }
+            else
+            {
+                // 表示幅が広がったので再表示化する
+                toVisibleNodes(feWidths, visibleWidth);
+            }
+
+            // 全コントロールがVisibleの時点でバッファする
+            IList<(FrameworkElement Element, double SumWidth)>
+                buffItemSourcesWidths(IEnumerable<FrameworkElement> elements)
+            {
+                if (elements.All(x => x.Visibility == Visibility.Visible))
                 {
-                    _visibleWidth = e.NewSize.Width;
-                    Console.WriteLine($"DirectoryPathBar Width: {_unlimitWidth:f2} / {_visibleWidth:f2}");
-                };
-            };
-#endif
+                    fwElementWidths.Clear();
 
+                    // リストは逆管理
+                    double sum = 0;
+                    foreach (var element in elements.Reverse())
+                    {
+                        sum += element.ActualWidth;
+                        fwElementWidths.Add((element, sum));
+                    }
+                }
+                return fwElementWidths;
+            }
+
+            // 表示幅が狭まったので非表示化する
+            void toCollapseNodes(IList<(FrameworkElement Element, double SumWidth)> ews, double viewWidth)
+            {
+                // 最小でも2つは表示させる(現＋上ディレクトリ)
+                foreach (var (Element, SumWidth) in ews.Skip(2))
+                {
+                    if (SumWidth > viewWidth)
+                        Element.Visibility = Visibility.Collapsed;
+                }
+            }
+
+            // 表示幅が広がったので再表示化する
+            void toVisibleNodes(IList<(FrameworkElement Element, double SumWidth)> ews, double viewWidth)
+            {
+                foreach (var (Element, SumWidth) in ews)
+                {
+                    if (Element.Visibility != Visibility.Visible)
+                    {
+                        if (SumWidth < viewWidth)
+                            Element.Visibility = Visibility.Visible;
+                        break;  // 1つ判定したら終わり
+                    }
+                }
+            }
+        }
+
+        // ItemsControl内の子要素を取得する(DirectoryPathNode)
+        private static IEnumerable<FrameworkElement> GetItemsControlSources(ItemsControl itemsControl)
+        {
+            if (itemsControl?.ItemsSource is null) yield break;
+
+            foreach (var item in itemsControl.ItemsSource)
+            {
+                if (item is FrameworkElement fe)
+                    yield return fe;
+            }
         }
 
     }
