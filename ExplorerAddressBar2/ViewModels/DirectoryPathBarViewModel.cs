@@ -51,10 +51,12 @@ namespace ExplorerAddressBar2.ViewModels
 
             // テキストボックスの確定(+非表示)コマンド
             SetTextBoxPathCommand
+                .Select(path => DirectoryNode.EmendFullPath(path))
                 .Subscribe(path =>
                 {
                     // 入力のディレクトリが存在したらModelに通知
-                    if (Directory.Exists(path)) modelMaster.TargetDirectoryPath = path;
+                    if (Directory.Exists(path))
+                        modelMaster.TargetDirectoryPath = path;
 
                     IsVisibleTextBoxPath.Value = false;
                 });

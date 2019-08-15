@@ -46,14 +46,16 @@ namespace ExplorerAddressBar2.ViewModels
             // Viewからのディレクトリ選択コンボボックス
             SelectedDirectoryNode
                 .Where(x => x != null)
-                .Do(x => modelMaster.TargetDirectoryPath = x.FullPath)  // 選択結果を通知
+                .Select(x => DirectoryNode.GetExistsDirectoryPath(x.FullPath))
+                .Do(path => modelMaster.TargetDirectoryPath = path)     // 選択結果を通知
                 .Subscribe(x => SelectedDirectoryNode.Value = null);    // 通知したら空に戻す(値保持しない)
 
             // ディレクトリ選択ボタン
             SelectDirectoryCommand
                 .Where(x => x != null)
                 .Cast<DirectoryNode>()
-                .Subscribe(x => modelMaster.TargetDirectoryPath = x.FullPath);
+                .Select(x => DirectoryNode.GetExistsDirectoryPath(x.FullPath))
+                .Subscribe(path => modelMaster.TargetDirectoryPath = path);
 
         }
 

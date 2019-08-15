@@ -30,19 +30,47 @@ namespace ExplorerAddressBar2.ViewModels
         // 引数pathディレクトリ内の子ファイルを返す
         public IEnumerable<string> GetChildFileNames() => GetChildFileNames(FullPath);
 
-        // FullPathを整形
-        private static string EmendFullPath(string srcPath)
+        /// <summary>
+        /// 存在するディレクトリに修正する
+        /// </summary>
+        /// <param name="basePath"></param>
+        /// <returns></returns>
+        public static string GetExistsDirectoryPath(string basePath)
         {
-            if (srcPath.Last() == Path.DirectorySeparatorChar)
+            // ディレクトリPATHを深い方から
+            foreach (var dirPath in GetDirectoriesPath(basePath).Reverse())
             {
-                // "C:\" は \ を除去しない
-                if (srcPath.Skip(srcPath.Count() - 2).First() != Path.VolumeSeparatorChar)
-                    return srcPath.TrimEnd(Path.DirectorySeparatorChar);
+                if (Directory.Exists(dirPath)) return dirPath;
             }
-            return srcPath;
+            // 全ヒットしなければデスクトップに
+            return Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         }
 
-        // フルパスから末端ディレクトリのView用の略名を取得する
+        /// <summary>
+        /// FullPathを整形
+        /// </summary>
+        /// <param name="srcPath"></param>
+        /// <returns></returns>
+        public static string EmendFullPath(string srcPath)
+        {
+            string path = srcPath;
+
+            // 最終が "\" だったら消す
+            if (path.Last() == Path.DirectorySeparatorChar)
+                path = path.TrimEnd(Path.DirectorySeparatorChar);
+
+            // "C:" だったら "C:\" にする
+            if (path.Last() == Path.VolumeSeparatorChar)
+                path += Path.DirectorySeparatorChar;
+
+            return path;
+        }
+
+        /// <summary>
+        /// フルパスから末端ディレクトリのView用の略名を取得する
+        /// </summary>
+        /// <param name="dirName"></param>
+        /// <returns></returns>
         private static string GetAbbreviationDirectoryName(string dirName)
         {
             var lengthMax = AbbreviationNameLengthMax;
@@ -51,11 +79,19 @@ namespace ExplorerAddressBar2.ViewModels
             return dirName;
         }
 
-        // ディレクトリのフルパスから末端ディレクトリ名を取得する
+        /// <summary>
+        /// ディレクトリのフルパスから末端ディレクトリ名を取得する
+        /// </summary>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
         private static string GetDirectoryName(string fullPath) =>
             fullPath?.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries).Last();
 
-        // 引数pathディレクトリ内の子ディレクトリを返す
+        /// <summary>
+        /// 引数pathディレクトリ内の子ディレクトリを返す
+        /// </summary>
+        /// <param name="basePath"></param>
+        /// <returns></returns>
         private static IEnumerable<DirectoryNode> GetChildDirectoryNodes(string basePath)
         {
             // Exists()の中で、null/存在しないPATHもチェックしてくれる
@@ -74,7 +110,11 @@ namespace ExplorerAddressBar2.ViewModels
             foreach (var item in items) yield return item;
         }
 
-        // 引数pathディレクトリ内の子ファイルを返す
+        /// <summary>
+        /// 引数pathディレクトリ内の子ファイルを返す
+        /// </summary>
+        /// <param name="basePath"></param>
+        /// <returns></returns>
         public static IEnumerable<string> GetChildFileNames(string basePath)
         {
             // Exists()の中で、null/存在しないPATHもチェックしてくれる
@@ -93,15 +133,22 @@ namespace ExplorerAddressBar2.ViewModels
             foreach (var item in items) yield return item;
         }
 
-        // 引数ディレクトリからDirectoryNodeクラスをルートから順番に返す
+        /// <summary>
+        /// 引数ディレクトリからDirectoryNodeクラスをルートから順番に返す
+        /// </summary>
+        /// <param name="basePath"></param>
+        /// <returns></returns>
         public static IEnumerable<DirectoryNode> GetDirectoryNodes(string basePath) =>
             GetDirectoriesPath(basePath).Select(path => new DirectoryNode(path));
 
-        // 引数ディレクトリからDirectoryPATHをルートから順番に返す
+        /// <summary>
+        /// 引数ディレクトリからDirectoryPATHをルートから順番に返す
+        /// </summary>
+        /// <param name="basePath"></param>
+        /// <returns></returns>
         private static IEnumerable<string> GetDirectoriesPath(string basePath)
         {
             if (string.IsNullOrEmpty(basePath)) yield break;
-            if (!Directory.Exists(basePath)) yield break;
 
             var path = "";
             var dirNames = basePath.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
